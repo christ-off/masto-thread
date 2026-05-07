@@ -4,6 +4,8 @@
 
 A Firefox browser extension that renders any Mastodon thread as a clean, single readable page.
 
+![A thread](etc/thread.png)
+
 ## Features
 
 - Auto-detects Mastodon post URLs on the active tab
