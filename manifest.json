@@ -1,0 +1,25 @@
+{
+  "manifest_version": 2,
+  "name": "Mastodon Thread Reader",
+  "version": "1.0.0",
+  "description": "Read any Mastodon thread as a clean, single readable page.",
+  "author": "Mastodon Thread Reader",
+
+  "icons": {
+    "48": "icons/icon-48.svg",
+    "96": "icons/icon-96.svg"
+  },
+
+  "browser_action": {
+    "default_popup": "popup.html",
+    "default_title": "Mastodon Thread Reader",
+    "default_icon": {
+      "48": "icons/icon-48.svg",
+      "96": "icons/icon-96.svg"
+    }
+  },
+
+  "permissions": [
+    "activeTab"
+  ]
+}

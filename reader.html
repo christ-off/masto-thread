@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Thread Reader</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #ffffff;
+      --bg-secondary: #f5f5f4;
+      --bg-info: #e6f1fb;
+      --bg-danger: #fcebeb;
+      --text: #1a1a18;
+      --text-secondary: #5f5e5a;
+      --text-tertiary: #888780;
+      --text-info: #185fa5;
+      --text-danger: #a32d2d;
+      --border: rgba(0,0,0,0.12);
+      --border-hover: rgba(0,0,0,0.25);
+      --accent: #6364FF;
+      --radius: 8px;
+      --radius-lg: 12px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1e1e1c;
+        --bg-secondary: #2a2a28;
+        --bg-info: #042c53;
+        --bg-danger: #501313;
+        --text: #f0ede8;
+        --text-secondary: #b4b2a9;
+        --text-tertiary: #888780;
+        --text-info: #85b7eb;
+        --text-danger: #f09595;
+        --border: rgba(255,255,255,0.12);
+        --border-hover: rgba(255,255,255,0.25);
+      }
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .page {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 2rem 1.25rem 4rem;
+    }
+
+    /* ── Header ── */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 0.5px solid var(--border);
+    }
+
+    .top-bar img { width: 24px; height: 24px; border-radius: 5px; }
+
+    .top-bar h1 {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      flex: 1;
+    }
+
+    .url-form { display: flex; gap: 8px; margin-bottom: 1.25rem; }
+
+    #url-input {
+      flex: 1;
+      font-family: inherit;
+      font-size: 13px;
+      padding: 8px 12px;
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--bg);
+      color: var(--text);
+      outline: none;
+    }
+
+    #url-input:focus { border-color: var(--border-hover); }
+
+    #load-btn {
+      font-family: inherit;
+      font-size: 13px;
+      padding: 8px 16px;
+      border: 0.5px solid var(--border-hover);
+      border-radius: var(--radius);
+      background: var(--bg);
+      color: var(--text);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    #load-btn:hover { background: var(--bg-secondary); }
+    #load-btn:active { transform: scale(0.98); }
+
+    /* ── Status ── */
+    #status {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 0.75rem;
+      min-height: 18px;
+    }
+
+    /* ── Thread ── */
+    .thread-header {
+      margin-bottom: 1.25rem;
+      padding-bottom: 1rem;
+      border-bottom: 0.5px solid var(--border);
+    }
+
+    .thread-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    .thread-meta {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      margin-top: 3px;
+    }
+
+    .thread-meta a { color: var(--text-info); text-decoration: none; }
+    .thread-meta a:hover { text-decoration: underline; }
+
+    .thread { display: flex; flex-direction: column; }
+
+    .post {
+      display: flex;
+      gap: 12px;
+      padding: 16px 0;
+      border-bottom: 0.5px solid var(--border);
+    }
+
+    .thread > *:last-child .post { border-bottom: none; }
+
+    .avatar-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--bg-secondary);
+      object-fit: cover;
+    }
+
+    .avatar-fallback {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--bg-info);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-info);
+    }
+
+    .connector {
+      width: 2px;
+      flex: 1;
+      background: var(--border);
+      margin: 6px 0 0;
+    }
+
+    .post-body { flex: 1; min-width: 0; }
+
+    .post-meta {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 6px;
+      flex-wrap: wrap;
+    }
+
+    .post-author { font-size: 14px; font-weight: 500; }
+    .post-time { font-size: 12px; color: var(--text-tertiary); }
+
+    .post-content { font-size: 15px; line-height: 1.65; }
+    .post-content p { margin-bottom: 0.55em; }
+    .post-content p:last-child { margin-bottom: 0; }
+    .post-content a { color: var(--text-info); text-decoration: none; }
+    .post-content a:hover { text-decoration: underline; }
+
+    .post-media { margin-top: 10px; display: flex; gap: 6px; flex-wrap: wrap; }
+
+    .post-media img {
+      max-width: 100%;
+      max-height: 300px;
+      border-radius: var(--radius);
+      border: 0.5px solid var(--border);
+      object-fit: cover;
+      cursor: pointer;
+    }
+
+    /* ── Error ── */
+    .error {
+      color: var(--text-danger);
+      font-size: 13px;
+      padding: 1rem;
+      background: var(--bg-danger);
+      border-radius: var(--radius);
+    }
+
+    /* ── Spinner ── */
+    .spinner { display: inline-block; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Lightbox ── */
+    #lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 999;
+      align-items: center;
+      justify-content: center;
+      cursor: zoom-out;
+    }
+
+    #lightbox.open { display: flex; }
+    #lightbox img { max-width: 92vw; max-height: 92vh; border-radius: var(--radius); }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="top-bar">
+      <img src="icons/icon-48.svg" alt="" />
+      <h1>Mastodon Thread Reader</h1>
+    </div>
+
+    <div class="url-form">
+      <input id="url-input" type="text" placeholder="https://mastodon.social/@user/123456789" />
+      <button id="load-btn">Load thread</button>
+    </div>
+
+    <div id="status"></div>
+    <div id="thread-container"></div>
+  </div>
+
+  <div id="lightbox" id="lightbox">
+    <img id="lightbox-img" src="" alt="" />
+  </div>
+
+  <script type="module" src="reader.js"></script>
+</body>
+</html>
