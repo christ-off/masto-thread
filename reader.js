@@ -122,12 +122,25 @@ async function loadThread() {
 
     const header = document.createElement('div');
     header.className = 'thread-header';
-    header.innerHTML = `
-      <div class="thread-title">Thread by ${displayName}</div>
-      <div class="thread-meta">
-        ${count} post${count > 1 ? 's' : ''} &nbsp;·&nbsp;
-        <a href="${url}" target="_blank" rel="noopener">View on Mastodon ↗</a>
-      </div>`;
+
+    const threadTitle = document.createElement('div');
+    threadTitle.className = 'thread-title';
+    threadTitle.textContent = `Thread by ${displayName}`;
+
+    const threadMeta = document.createElement('div');
+    threadMeta.className = 'thread-meta';
+    threadMeta.appendChild(document.createTextNode(
+      `${count} post${count > 1 ? 's' : ''}  ·  `
+    ));
+    const viewLink = document.createElement('a');
+    viewLink.href = url;
+    viewLink.target = '_blank';
+    viewLink.rel = 'noopener';
+    viewLink.textContent = 'View on Mastodon ↗';
+    threadMeta.appendChild(viewLink);
+
+    header.appendChild(threadTitle);
+    header.appendChild(threadMeta);
 
     const thread = document.createElement('div');
     thread.className = 'thread';
