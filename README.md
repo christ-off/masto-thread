@@ -1,5 +1,7 @@
 # Mastodon Thread Reader
 
+[![CodeQL](https://github.com/christ-off/masto-thread/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/christ-off/masto-thread/actions/workflows/github-code-scanning/codeql) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=christ-off_masto-thread&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=christ-off_masto-thread)
+
 A Firefox browser extension that renders any Mastodon thread as a clean, single readable page.
 
 ## Features
