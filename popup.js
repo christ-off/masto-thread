@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const btn = document.getElementById('open-btn');
 
   browser.tabs.query({ active: true, currentWindow: true }).then(tabs => {
-    const tabUrl = tabs[0] && tabs[0].url;
+    const tabUrl = tabs[0]?.url;
     if (tabUrl && isMastodonUrl(tabUrl)) {
       input.value = tabUrl;
       badge.classList.add('visible');

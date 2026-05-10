@@ -213,7 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
   lightbox.addEventListener('click', closeLightbox);
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
 
-  const params = new URLSearchParams(window.location.search);
+  const params = new URLSearchParams(globalThis.location.search);
   const urlParam = params.get('url');
   if (urlParam) {
     input.value = urlParam;

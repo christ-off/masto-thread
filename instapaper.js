@@ -5,7 +5,7 @@ const CONSUMER_SECRET = 'YOUR_CONSUMER_SECRET';
 // --- OAuth 1.0a helpers ---
 
 function percentEncode(s) {
-  return encodeURIComponent(s).replace(/[!'()*]/g, c => '%' + c.charCodeAt(0).toString(16).toUpperCase());
+  return encodeURIComponent(s).replaceAll(/[!'()*]/g, c => '%' + c.codePointAt(0).toString(16).toUpperCase());
 }
 
 async function hmacSha1(key, data) {
@@ -14,11 +14,11 @@ async function hmacSha1(key, data) {
     'raw', enc.encode(key), { name: 'HMAC', hash: 'SHA-1' }, false, ['sign']
   );
   const sig = await crypto.subtle.sign('HMAC', cryptoKey, enc.encode(data));
-  return btoa(String.fromCharCode(...new Uint8Array(sig)));
+  return btoa(String.fromCodePoint(...new Uint8Array(sig)));
 }
 
 function nonce() {
-  return crypto.randomUUID().replace(/-/g, '');
+  return crypto.randomUUID().replaceAll(/-/g, '');
 }
 
 async function buildAuthHeader(method, url, params, tokenKey = '', tokenSecret = '') {
@@ -34,7 +34,7 @@ async function buildAuthHeader(method, url, params, tokenKey = '', tokenSecret =
   if (!tokenKey) delete oauthParams.oauth_token;
 
   const allParams = { ...params, ...oauthParams };
-  const sortedKeys = Object.keys(allParams).sort();
+  const sortedKeys = Object.keys(allParams).sort((a, b) => a.localeCompare(b));
   const paramStr = sortedKeys
     .map(k => `${percentEncode(k)}=${percentEncode(allParams[k])}`)
     .join('&');
