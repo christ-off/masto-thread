@@ -20,6 +20,12 @@
   },
 
   "permissions": [
-    "activeTab"
-  ]
+    "activeTab",
+    "storage",
+    "https://*/*"
+  ],
+  "options_ui": {
+    "page": "options.html",
+    "browser_style": false
+  }
 }

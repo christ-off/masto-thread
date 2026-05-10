@@ -1,4 +1,5 @@
 import { parseUrl, formatTime, stripHtml } from './lib.js';
+import { addBookmark } from './instapaper.js';
 
 function renderPost(post, showConnector) {
   const acc = post.account;
@@ -149,6 +150,9 @@ async function loadThread() {
     container.appendChild(header);
     container.appendChild(thread);
 
+    const instaBtn = renderInstapaperButton(url, `Thread by ${displayName}`, container);
+    container.appendChild(instaBtn);
+
   } catch(e) {
     statusEl.innerHTML = '';
     container.innerHTML = `<div class="error">Error: ${e.message}</div>`;
@@ -163,6 +167,40 @@ function openLightbox(src) {
 
 function closeLightbox() {
   document.getElementById('lightbox').classList.remove('open');
+}
+
+function renderInstapaperButton(postUrl, title, container) {
+  const btn = document.createElement('button');
+  btn.id = 'instapaper-btn';
+  btn.textContent = 'Save to Instapaper';
+  btn.style.cssText = `
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: inherit; font-size: 13px; font-weight: 500;
+    padding: 7px 14px; border: 0.5px solid var(--border-hover);
+    border-radius: var(--radius); background: var(--bg); color: var(--text);
+    cursor: pointer; margin-top: 1rem;
+  `;
+
+  btn.addEventListener('click', async () => {
+    const { instaToken, instaSecret } = await browser.storage.local.get(['instaToken', 'instaSecret']);
+    if (!instaToken) {
+      browser.runtime.openOptionsPage();
+      return;
+    }
+    btn.textContent = 'Saving…';
+    btn.disabled = true;
+    try {
+      const content = container.querySelector('.thread').outerHTML;
+      await addBookmark(instaToken, instaSecret, { url: postUrl, title, content });
+      btn.textContent = '✓ Saved to Instapaper';
+    } catch (e) {
+      btn.textContent = 'Error — retry';
+      btn.disabled = false;
+      console.error(e);
+    }
+  });
+
+  return btn;
 }
 
 document.addEventListener('DOMContentLoaded', () => {

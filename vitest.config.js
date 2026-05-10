@@ -6,7 +6,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['lcov', 'text'],
-      include: ['lib.js'],
+      include: ['lib.js', 'instapaper.js'],
     },
   },
 });
