@@ -1,6 +1,13 @@
 import { parseUrl, formatTime, stripHtml } from './lib.js';
 import { addBookmark } from './instapaper.js';
 
+function sanitizeHtml(html) {
+  const d = document.createElement('div');
+  d.innerHTML = html;
+  d.querySelectorAll('script, iframe, object, embed, form').forEach(el => el.remove());
+  return d.innerHTML;
+}
+
 function renderPost(post, showConnector) {
   const acc = post.account;
   const initials = stripHtml(acc.display_name || acc.username || '?').slice(0, 2).toUpperCase();
@@ -59,7 +66,7 @@ function renderPost(post, showConnector) {
 
   const content = document.createElement('div');
   content.className = 'post-content';
-  content.setHTML(post.content);
+  content.setHTML(sanitizeHtml(post.content));
 
   body.appendChild(meta);
   body.appendChild(content);
