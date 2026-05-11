@@ -31,7 +31,7 @@ jobs:
         run: |
           npx web-ext build \
             --source-dir . \
-            --artifact-dir web-ext-artifacts \
+            --artifacts-dir web-ext-artifacts \
             --ignore-files '**/*.test.js' 'package.json' 'package-lock.json' 'vitest.config.js' 'sonar-project.properties' 'README.md' 'screenshots/**' 'coverage/**' 'lcov.info'
 
       - name: Upload artifact
