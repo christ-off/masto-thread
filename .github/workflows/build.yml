@@ -38,4 +38,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: mastodon-thread-reader
-          path: web-ext-artifacts/*.xpi
+          path: web-ext-artifacts/*.zip
