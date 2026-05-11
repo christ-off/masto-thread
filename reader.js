@@ -103,6 +103,9 @@ async function loadThread() {
     return;
   }
 
+  // Construct safe URL from parsed instance + known-safe protocol
+  url = `${parsed.instance}/statuses/${parsed.id}`;
+
   statusEl.innerHTML = '<span class="spinner">↻</span> Loading thread…';
   container.innerHTML = '';
 
