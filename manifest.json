@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Mastodon Thread Reader",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Read any Mastodon thread as a clean, single readable page.",
   "author": "Mastodon Thread Reader",
 
@@ -24,6 +24,18 @@
     "storage",
     "https://*/*"
   ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "masto-thread@chtisuisse",
+      "strict_min_version": "109.0"
+    }
+  },
+
+  "data_collection_permissions": {
+    "required": [],
+    "optional": []
+  },
+
   "options_ui": {
     "page": "options.html",
     "browser_style": false
