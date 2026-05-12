@@ -1,11 +1,62 @@
 import { parseUrl, formatTime, stripHtml } from './lib.js';
 import { addBookmark } from './instapaper.js';
 
+function setErrorStatus(container, statusEl, message) {
+  const el = document.createElement('div');
+  el.className = 'error';
+  el.textContent = message;
+  statusEl.textContent = '';
+  container.innerHTML = '';
+  container.appendChild(el);
+}
+
+function setStatus(container, statusEl, message, type) {
+  if (type === 'loading') {
+    setLoadingStatus(statusEl);
+    container.innerHTML = '';
+    return;
+  }
+  if (type === 'error') {
+    setErrorStatus(container, statusEl, message);
+    return;
+  }
+  setPlainStatus(statusEl, message);
+}
+
+function setPlainStatus(el, text) {
+  el.textContent = text;
+}
+
+function setLoadingStatus(el) {
+  el.innerHTML = '<span class="spinner">↻</span> Loading thread…';
+}
+
 function sanitizeHtml(html) {
   const d = document.createElement('div');
   d.innerHTML = html;
   d.querySelectorAll('script, iframe, object, embed, form').forEach(el => el.remove());
+  for (const el of d.querySelectorAll('*')) {
+    for (const attr of el.attributes) {
+      if (attr.name.startsWith('on')) {
+        el.removeAttribute(attr.name);
+      }
+      else if (attr.name === 'href' || attr.name === 'src' || attr.name === 'action') {
+        if (!isSafeUrl(attr.value)) el.removeAttribute(attr.name);
+      }
+    }
+  }
   return d.innerHTML;
+}
+
+function isSafeUrl(url) {
+  if (!url) return false;
+  try {
+    const u = new URL(url);
+    return u.protocol === 'http:' || u.protocol === 'https:';
+  }
+  catch {
+    return false;
+  }
 }
 
 function renderPost(post, showConnector) {
@@ -93,20 +144,20 @@ function renderPost(post, showConnector) {
 }
 
 async function loadThread() {
-  const url = document.getElementById('url-input').value.trim();
+  let url = document.getElementById('url-input').value.trim();
   const parsed = parseUrl(url);
   const container = document.getElementById('thread-container');
   const statusEl = document.getElementById('status');
 
   if (!parsed) {
-    container.innerHTML = '<div class="error">Invalid URL. Paste a valid Mastodon post URL.</div>';
+    setStatus(container, statusEl, 'Invalid URL. Paste a valid Mastodon post URL.', 'error');
     return;
   }
 
   // Construct safe URL from parsed instance + known-safe protocol
   url = `${parsed.instance}/statuses/${parsed.id}`;
 
-  statusEl.innerHTML = '<span class="spinner">↻</span> Loading thread…';
+  setStatus(container, statusEl, 'Loading thread…', 'loading');
   container.innerHTML = '';
 
   document.title = 'Loading thread…';
@@ -129,7 +180,7 @@ async function loadThread() {
 
     const displayName = stripHtml(post.account.display_name || post.account.username);
     document.title = `Thread by ${displayName}`;
-    statusEl.innerHTML = `✓ ${count} post${count > 1 ? 's' : ''} loaded`;
+    setPlainStatus(statusEl, `✓ ${count} post${count > 1 ? 's' : ''} loaded`);
 
     const header = document.createElement('div');
     header.className = 'thread-header';
@@ -164,8 +215,7 @@ async function loadThread() {
     container.appendChild(instaBtn);
 
   } catch(e) {
-    statusEl.innerHTML = '';
-    container.innerHTML = `<div class="error">Error: ${e.message}</div>`;
+    setStatus(container, statusEl, `Error: ${e.message}`, 'error');
     document.title = 'Thread Reader — Error';
   }
 }

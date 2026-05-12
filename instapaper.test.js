@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { getAccessToken, addBookmark } from './instapaper.js';
+import { getAccessToken, addBookmark, verifyCredentials } from './instapaper.js';
 
 function mockCrypto() {
   vi.spyOn(globalThis.crypto, 'randomUUID').mockReturnValue('11111111-1111-1111-1111-111111111111');
@@ -25,6 +25,51 @@ describe('getAccessToken', () => {
   it('throws on HTTP error', async () => {
     globalThis.fetch = vi.fn().mockResolvedValue({ ok: false, status: 401 });
     await expect(getAccessToken('bad', 'creds')).rejects.toThrow('Auth failed: HTTP 401');
+  });
+
+  it('throws when response has no oauth_token', async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      text: async () => 'oauth_token_secret=def',
+    });
+    await expect(getAccessToken('user', 'pass')).rejects.toThrow('no token returned');
+  });
+
+  it('encodes special chars in credentials', async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      text: async () => 'oauth_token=abc&oauth_token_secret=def',
+    });
+    // These chars !'()* are percent-encoded by percentEncode's replaceAll callback
+    const result = await getAccessToken("user!test", "p'ass(w)");
+    expect(result).toEqual({ token: 'abc', secret: 'def' });
+    // Verify fetch was called with the correct Authorization header
+    const callArgs = globalThis.fetch.mock.calls[0];
+    expect(callArgs[1].headers.Authorization).toContain('OAuth');
+  });
+});
+
+describe('verifyCredentials', () => {
+  it('returns user on success', async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => [{ type: 'user', display_name: 'alice' }],
+    });
+    const user = await verifyCredentials('tok', 'sec');
+    expect(user.display_name).toBe('alice');
+  });
+
+  it('throws when no user in response', async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => [],
+    });
+    await expect(verifyCredentials('tok', 'sec')).rejects.toThrow('Unexpected response');
+  });
+
+  it('throws on HTTP error', async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue({ ok: false, status: 401 });
+    await expect(verifyCredentials('bad', 'secret')).rejects.toThrow('HTTP 401');
   });
 });
 

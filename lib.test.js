@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isMastodonUrl, parseUrl, stripHtml } from './lib.js';
+import { isMastodonUrl, parseUrl, formatTime, stripHtml } from './lib.js';
 
 describe('isMastodonUrl', () => {
   it('accepts a standard post URL', () => {
@@ -74,5 +74,18 @@ describe('stripHtml', () => {
 
   it('handles nested tags', () => {
     expect(stripHtml('<div><span>foo</span> <em>bar</em></div>')).toBe('foo bar');
+  });
+});
+
+describe('formatTime', () => {
+  it('returns a formatted date string', () => {
+    const result = formatTime('2025-03-15T14:30:00Z');
+    expect(result).toBeDefined();
+    expect(typeof result).toBe('string');
+    expect(result).toContain('2025');
+  });
+
+  it('returns "Invalid Date" for bad input', () => {
+    expect(formatTime('not-a-date')).toBe('Invalid Date');
   });
 });
