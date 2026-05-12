@@ -32,11 +32,10 @@ function setLoadingStatus(el) {
 }
 
 function sanitizeHtml(html) {
-  const d = document.createElement('div');
-  d.innerHTML = html;
-  d.querySelectorAll('script, iframe, object, embed, form').forEach(el => el.remove());
-  for (const el of d.querySelectorAll('*')) {
-    for (const attr of el.attributes) {
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  doc.querySelectorAll('script, iframe, object, embed, form').forEach(el => el.remove());
+  for (const el of doc.querySelectorAll('*')) {
+    for (const attr of [...el.attributes]) {
       if (attr.name.startsWith('on')) {
         el.removeAttribute(attr.name);
       }
@@ -45,7 +44,7 @@ function sanitizeHtml(html) {
       }
     }
   }
-  return d.innerHTML;
+  return doc.body.innerHTML;
 }
 
 function isSafeUrl(url) {

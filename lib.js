@@ -25,7 +25,6 @@ export function formatTime(iso) {
 }
 
 export function stripHtml(html) {
-  const d = document.createElement('div');
-  d.innerHTML = html;
-  return d.textContent || d.innerText || '';
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  return doc.body.textContent || '';
 }
