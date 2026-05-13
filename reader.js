@@ -58,10 +58,8 @@ function isSafeUrl(url) {
   }
 }
 
-function renderPost(post, showConnector) {
+function renderPost(post, isFirst, showConnector) {
   const acc = post.account;
-  const initials = stripHtml(acc.display_name || acc.username || '?').slice(0, 2).toUpperCase();
-
   const mediaItems = (post.media_attachments || []).filter(m => m.type === 'image');
 
   const wrapper = document.createElement('div');
@@ -72,22 +70,17 @@ function renderPost(post, showConnector) {
   const avatarCol = document.createElement('div');
   avatarCol.className = 'avatar-col';
 
-  if (acc.avatar) {
+  if (isFirst && acc.avatar) {
     const img = document.createElement('img');
     img.className = 'avatar';
     img.src = acc.avatar;
     img.alt = stripHtml(acc.display_name || '');
     const fallback = document.createElement('div');
     fallback.className = 'avatar-fallback';
-    fallback.textContent = initials;
+    fallback.textContent = (stripHtml(acc.display_name || acc.username || '?')).slice(0, 2).toUpperCase();
     fallback.style.display = 'none';
     img.onerror = () => { img.style.display = 'none'; fallback.style.display = 'flex'; };
     avatarCol.appendChild(img);
-    avatarCol.appendChild(fallback);
-  } else {
-    const fallback = document.createElement('div');
-    fallback.className = 'avatar-fallback';
-    fallback.textContent = initials;
     avatarCol.appendChild(fallback);
   }
 
@@ -100,25 +93,27 @@ function renderPost(post, showConnector) {
   const body = document.createElement('div');
   body.className = 'post-body';
 
-  const meta = document.createElement('div');
-  meta.className = 'post-meta';
+  if (isFirst) {
+    const meta = document.createElement('div');
+    meta.className = 'post-meta';
 
-  const author = document.createElement('span');
-  author.className = 'post-author';
-  author.textContent = stripHtml(acc.display_name || acc.username);
+    const author = document.createElement('span');
+    author.className = 'post-author';
+    author.textContent = stripHtml(acc.display_name || acc.username);
 
-  const time = document.createElement('span');
-  time.className = 'post-time';
-  time.textContent = formatTime(post.created_at);
+    const time = document.createElement('span');
+    time.className = 'post-time';
+    time.textContent = formatTime(post.created_at);
 
-  meta.appendChild(author);
-  meta.appendChild(time);
+    meta.appendChild(author);
+    meta.appendChild(time);
+    body.appendChild(meta);
+  }
 
   const content = document.createElement('div');
   content.className = 'post-content';
   content.setHTML(sanitizeHtml(post.content));
 
-  body.appendChild(meta);
   body.appendChild(content);
 
   if (mediaItems.length) {
@@ -173,7 +168,10 @@ async function loadThread() {
 
     const authorId = post.account.id;
     const ancestors = ctx.ancestors || [];
-    const descendants = (ctx.descendants || []).filter(p => p.account.id === authorId);
+    const descendants = (ctx.descendants || []).filter(p =>
+      p.account.id === authorId
+      && (p.in_reply_to_account_id == null || p.in_reply_to_account_id === authorId)
+    );
     const allPosts = [...ancestors, post, ...descendants];
     const count = allPosts.length;
 
@@ -205,7 +203,7 @@ async function loadThread() {
 
     const thread = document.createElement('div');
     thread.className = 'thread';
-    allPosts.forEach((p, i) => thread.appendChild(renderPost(p, i < allPosts.length - 1)));
+    allPosts.forEach((p, i) => thread.appendChild(renderPost(p, i === 0, i < allPosts.length - 1)));
 
     container.appendChild(header);
     container.appendChild(thread);

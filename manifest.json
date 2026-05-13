@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Mastodon Thread Reader",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Read any Mastodon thread as a clean, single readable page.",
   "author": "Mastodon Thread Reader",
 
