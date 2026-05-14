@@ -13,9 +13,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: npm
@@ -35,7 +35,7 @@ jobs:
             --ignore-files '**/*.test.js' 'package.json' 'package-lock.json' 'vitest.config.js' 'sonar-project.properties' 'README.md' 'screenshots/**' 'coverage/**' 'lcov.info'
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: mastodon-thread-reader
           path: web-ext-artifacts/*.zip
