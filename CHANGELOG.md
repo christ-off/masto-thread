@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 - Bump GitHub Actions to latest versions (checkout v6, setup-node v6, upload-artifact v7, sonarcloud-github-action v5)
+- Add missing test coverage for `addBookmark` HTTP error path in instapaper.js
 
 ## [0.2.0] - 2026-05-13
 
