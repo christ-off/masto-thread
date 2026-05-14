@@ -83,6 +83,12 @@ describe('addBookmark', () => {
     expect(bm.bookmark_id).toBe(42);
   });
 
+  it('throws on HTTP error', async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue({ ok: false, status: 500 });
+    await expect(addBookmark('tok', 'sec', { url: 'https://example.com', title: 'Test', content: '' }))
+      .rejects.toThrow('HTTP 500');
+  });
+
   it('throws on API error object', async () => {
     globalThis.fetch = vi.fn().mockResolvedValue({
       ok: true,
