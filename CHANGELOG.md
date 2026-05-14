@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+
+- Bump GitHub Actions to latest versions (checkout v6, setup-node v6, upload-artifact v7, sonarcloud-github-action v5)
+
 ## [0.2.0] - 2026-05-13
 
 - Only display account avatar and name on the first post of a thread, with a connector line carrying down through the thread
