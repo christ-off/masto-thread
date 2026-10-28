@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- Bump dev dependencies: vitest 5.0.5, @vitest/coverage-v8 5.0.5, jsdom 30.1.3
 - Bump GitHub Actions to latest versions (checkout v6, setup-node v6, upload-artifact v7, sonarcloud-github-action v5)
 - Add missing test coverage for `addBookmark` HTTP error path in instapaper.js
 
