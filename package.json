@@ -22,7 +22,7 @@
   "homepage": "https://github.com/christ-off/masto-thread#readme",
   "devDependencies": {
     "@vitest/coverage-v8": "^5.0.5",
+    "vitest": "^5.1.0"
     "jsdom": "^31.0.0",
-    "vitest": "^5.0.5"
   }
 }
